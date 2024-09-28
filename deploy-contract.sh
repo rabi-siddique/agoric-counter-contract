@@ -3,9 +3,14 @@ wantMinted=450
 giveCollateral=90
 walletName=gov1
 
-agops vaults open --wantMinted ${wantMinted} --giveCollateral ${giveCollateral} > /tmp/want-ist.json
-sleep 5
-agops perf satisfaction --executeOffer /tmp/want-ist.json --from $walletName --keyring-backend=test
+if [ "$1" -eq 1 ]; then
+  agops vaults open --wantMinted ${wantMinted} --giveCollateral ${giveCollateral} > /tmp/want-ist.json
+  sleep 5
+  agops perf satisfaction --executeOffer /tmp/want-ist.json --from $walletName --keyring-backend=test
+else
+  echo "Skipping execution because the condition is not met."
+fi
+
 
 # Generate Bundles
 mkdir -p bundles
