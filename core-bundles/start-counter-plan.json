@@ -1,0 +1,17 @@
+{
+  "name": "core-bundles/start-counter",
+  "script": "core-bundles/start-counter.js",
+  "permit": "core-bundles/start-counter-permit.json",
+  "bundles": [
+    {
+      "entrypoint": "./counterContract.js",
+      "bundleID": "b1-1e047b06c135fd884179ec7a9d7a7d56fc043777f4ffc55d581a4ed5f9b8dc0600ce6904dfb10095ae0a293edba9baa05681897afb55541e1f25a2ffee4dba6a",
+      "fileName": "/Users/rabisiddique/.agoric/cache/b1-1e047b06c135fd884179ec7a9d7a7d56fc043777f4ffc55d581a4ed5f9b8dc0600ce6904dfb10095ae0a293edba9baa05681897afb55541e1f25a2ffee4dba6a.json"
+    },
+    {
+      "entrypoint": "./counterProposal.js",
+      "bundleID": "b1-5d8352a3b743c091a57240e26eb5659e52857610452286835dd8f83c86e9d71c43f0a3b72634af58493aac6d816be7d2970d978969a7378a799c701574feb4ae",
+      "fileName": "/Users/rabisiddique/.agoric/cache/b1-5d8352a3b743c091a57240e26eb5659e52857610452286835dd8f83c86e9d71c43f0a3b72634af58493aac6d816be7d2970d978969a7378a799c701574feb4ae.json"
+    }
+  ]
+}
