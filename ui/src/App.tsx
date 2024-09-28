@@ -52,12 +52,9 @@ const makeOffer = () => {
     {
       source: 'contract',
       instance: contractInstance,
-      publicInvitationMaker: 'incrementCounter',
+      publicInvitationMaker: 'makeInvitation',
     },
-    {
-      give: null,
-      want: null,
-    },
+    {},
     {
       userAddress: wallet.address,
     },
