@@ -16,6 +16,6 @@ export const counterProposalBuilder = async ({ publishRef, install }) => {
 };
 
 export default async (homeP, endowments) => {
-  const { writeCoreProposal } = await makeHelpers(homeP, endowments);
-  await writeCoreProposal('core-bundles/start-counter', counterProposalBuilder);
+  const { writeCoreEval } = await makeHelpers(homeP, endowments);
+  await writeCoreEval('core-bundles/start-counter', counterProposalBuilder);
 };
