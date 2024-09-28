@@ -8,7 +8,7 @@ if [ "$1" -eq 1 ]; then
   sleep 5
   agops perf satisfaction --executeOffer /tmp/want-ist.json --from $walletName --keyring-backend=test
 else
-  echo "Skipping execution because the condition is not met."
+  echo "Skipping creation of vault"
 fi
 
 
