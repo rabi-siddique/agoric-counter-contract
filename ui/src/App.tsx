@@ -22,9 +22,10 @@ const watcher = makeAgoricChainStorageWatcher(ENDPOINTS.API, 'agoriclocal');
 interface AppState {
   wallet?: Wallet;
   contractInstance?: unknown;
+  counter: number;
 }
 
-const useAppStore = create<AppState>(() => ({}));
+const useAppStore = create<AppState>(() => ({ counter: 0 }));
 
 const setup = async () => {
   watcher.watchLatest<Array<[string, unknown]>>(
@@ -33,6 +34,16 @@ const setup = async () => {
       console.log('got instances', instances);
       useAppStore.setState({
         contractInstance: instances.find(([name]) => name === 'counter')?.[1],
+      });
+    }
+  );
+
+  watcher.watchLatest<Array<[string, unknown]>>(
+    [Kind.Data, 'published.counterData.counter'],
+    (counter) => {
+      console.log('counter data', counter);
+      useAppStore.setState({
+        counter: Number(counter),
       });
     }
   );
@@ -71,6 +82,7 @@ const makeOffer = () => {
 };
 
 function App() {
+  const { counter } = useAppStore.getState();
   useEffect(() => {
     setup();
   }, []);
@@ -93,6 +105,8 @@ function App() {
 
   return (
     <>
+      <h1 className='big-h1'>Counter</h1>
+      <h1 className='big-h1'>{counter}</h1>
       <div className='card'>
         <button onClick={makeOffer}>Increment Counter</button>
         {!wallet && <button onClick={tryConnectWallet}>Connect Wallet</button>}

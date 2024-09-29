@@ -3,7 +3,7 @@
   margin: 0 auto;
   padding: 1rem;
   text-align: center;
-  color: #76D4DB;
+  color: #76d4db;
 }
 
 .logo {
@@ -38,7 +38,6 @@
 .card {
   padding: 1em;
 }
-
 
 .read-the-docs {
   color: #888;
@@ -104,11 +103,16 @@ input {
 }
 
 .error {
-  background-color: #E11D48;
+  background-color: #e11d48;
   color: #fff;
 }
 
 /* increment/decrement arrows always visible */
-input[type=number]::-webkit-inner-spin-button {
-  opacity: 1
+input[type='number']::-webkit-inner-spin-button {
+  opacity: 1;
+}
+
+.big-h1 {
+  font-size: 3rem;
+  font-weight: bold;
 }
