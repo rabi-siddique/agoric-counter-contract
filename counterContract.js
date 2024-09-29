@@ -12,7 +12,7 @@ export const start = async (zcf, privateArgs) => {
   const incrementCounter = async () => {
     counter += 1;
     await E(node).setValue(String(counter));
-    console.log('Counter:', counter);
+    console.log('Counter Value:', counter);
   };
 
   const makeInvitation = () =>

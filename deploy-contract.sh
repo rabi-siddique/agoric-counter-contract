@@ -14,8 +14,8 @@ fi
 
 # Generate Bundles
 mkdir -p bundles
-FILENAME=counterBuilder.js
-(agoric run $FILENAME A3P_INTEGRATION) > /tmp/,run.log
+FILENAME=counterBuilderUpgrade.js
+(agoric run $FILENAME) > /tmp/,run.log
 node parseProposals.mjs < /tmp/,run.log \
   | jq -r '.bundles[]' | sort -u > bundles/bundle-list
 
