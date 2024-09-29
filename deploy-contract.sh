@@ -36,8 +36,8 @@ for b in $(cat bundles/bundle-list); do
 done
 
 # Submit Proposal
-PERMIT=core-bundles/start-counter-permit.json
-SCRIPT=core-bundles/start-counter.js
+PERMIT=bundles/start-counter-permit.json
+SCRIPT=bundles/start-counter.js
 
 agd tx gov submit-proposal swingset-core-eval $PERMIT $SCRIPT \
   --title="Replace EC Committee and Charter" --description="Evaluate $SCRIPT" \

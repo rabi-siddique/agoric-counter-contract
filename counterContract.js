@@ -1,14 +1,17 @@
-import { Far } from '@endo/far';
+import { Far, E } from '@endo/far';
 import { EmptyProposalShape } from '@agoric/zoe/src/typeGuards';
 
 let counter = 0;
 
-export const start = async (zcf) => {
+export const start = async (zcf, privateArgs) => {
+  const { node } = privateArgs;
+  
   console.log('Starting Counter Contract');
   console.log('Counter:', counter);
 
-  const incrementCounter = () => {
+  const incrementCounter = async () => {
     counter += 1;
+    await E(node).setValue(String(counter));
     console.log('Counter:', counter);
   };
 
