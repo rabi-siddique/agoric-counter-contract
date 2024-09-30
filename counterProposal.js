@@ -3,12 +3,12 @@ import { E } from '@endo/far';
 
 export const startCounterContract = async (permittedPowers) => {
   const {
-    consume: { startUpgradable, chainStorage },
+    consume: { zoe, chainStorage },
     installation: {
       consume: { counter: counterInstallationP },
     },
     instance: {
-      produce: { counter: produceInstance },
+      produce: { counter: produceInstance, counterStartResult },
     },
   } = permittedPowers;
 
@@ -18,24 +18,27 @@ export const startCounterContract = async (permittedPowers) => {
   const node = await E(boardAux).makeChildNode('counter');
   await E(node).setValue(String(0));
 
-  const { instance } = await E(startUpgradable)({
+  const startResult = await E(zoe).startInstance(
     installation,
-    label: 'counter',
-    privateArgs: harden({ node }),
-  });
+    undefined,
+    undefined,
+    harden({ node })
+  );
+
+  counterStartResult.resolve(startResult);
 
   produceInstance.reset();
-  produceInstance.resolve(instance);
+  produceInstance.resolve(startResult.instance);
 };
 
 const counterManifest = {
   [startCounterContract.name]: {
     consume: {
-      startUpgradable: true,
+      zoe: true,
       chainStorage: true,
     },
     installation: { consume: { counter: true } },
-    instance: { produce: { counter: true } },
+    instance: { produce: { counter: true, counterStartResult: true } },
   },
 };
 harden(counterManifest);
