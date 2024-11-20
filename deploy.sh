@@ -1,10 +1,22 @@
 #!/bin/bash
 
+declare dockerFlag=false
+declare containerID=$(docker ps -q | head -n 1)
+
 declare JSON_FILE=counter-contract-plan.json
 declare -a bundleIDs=()
 declare -a bundleFiles=()
 declare script=""
 declare permit=""
+
+if [[ "$1" == "-d" ]]; then
+    dockerFlag=true
+fi
+
+if [ -z "$containerID" ]; then
+    echo "No Docker container running. Exiting."
+    exit 1
+fi
 
 checkCounterFiles() {
     local files=(
@@ -13,17 +25,17 @@ checkCounterFiles() {
         "counter-contract.js"
     )
 
-    local all_files_exist=true
+    local allFilesExist=true
     for file in "${files[@]}"; do
         if [[ -f "$file" ]]; then
             echo "✅ $file exists."
         else
             echo "❌ $file is missing."
-            all_files_exist=false
+            allFilesExist=false
         fi
     done
 
-    if $all_files_exist; then
+    if $allFilesExist; then
         echo "All files are present."
     else
         echo "One or more files are missing."
@@ -56,13 +68,36 @@ parsePlan() {
 
 }
 
+copyFilesToContainer() {
+    targetDir="/usr/src/"
+
+    docker cp "$script" "$containerID":"$targetDir"
+    docker cp "$permit" "$containerID":"$targetDir"
+    docker cp "$JSON_FILE" "$containerID":"$targetDir"
+
+    for file in "${bundleFiles[@]}"; do
+        if [[ -f "$file" ]]; then
+            echo "Copying $file to container $containerID..."
+            docker cp "$file" "$containerID":"$targetDir"
+        else
+            echo "Warning: File $file not found."
+        fi
+    done
+}
+
 echo "Running counterCoreEval.js using Agoric..."
 agoric run counterCoreEval.js
 
+echo "Checking files..."
 checkCounterFiles
+
+echo "Parsing plan..."
 parsePlan
 
 echo "bundleIDs: ${bundleIDs[*]}"
 echo "bundleFiles: ${bundleFiles[*]}"
 echo "script: \"$script\""
 echo "permit: \"$permit\""
+
+echo "Copying files..."
+copyFilesToContainer
