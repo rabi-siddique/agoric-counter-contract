@@ -8,7 +8,7 @@ declare agops="/usr/src/agoric-sdk/packages/agoric-cli/bin/agops"
 declare JSON_FILE=counter-contract-plan.json
 declare CHAINID=agoriclocal
 declare GAS_ADJUSTMENT=1.2
-declare SIGN_BROADCAST_OPTS="--keyring-backend=test --chain-id=$CHAINID --gas=auto --gas-adjustment=$GAS_ADJUSTMENT --yes"
+declare SIGN_BROADCAST_OPTS="--keyring-backend=test --chain-id=$CHAINID --gas=auto --gas-adjustment=$GAS_ADJUSTMENT --yes -b block"
 declare -a bundleIDs=()
 declare -a bundleFiles=()
 declare script=""
@@ -132,6 +132,38 @@ installAllBundles() {
     done
 }
 
+acceptProposal() {
+    echo "Submitting proposal to evaluate $script"
+    local submitCommand="cd /usr/src && agd tx gov submit-proposal swingset-core-eval $permit $script "
+    submitCommand+="--title='Replace EC Committee and Charter' --description='Evaluate $script' "
+    submitCommand+="--deposit=10000000ubld --from $walletName $SIGN_BROADCAST_OPTS -o json"
+    execCmd "$submitCommand"
+
+    sleep 5
+
+    local queryCommand="cd /usr/src && agd query gov proposals --output json | jq -c '[.proposals[] | "
+    queryCommand+="if .proposal_id == null then .id else .proposal_id end | tonumber] | max'"
+    local LATEST_PROPOSAL=$(execCmd "$queryCommand")
+    echo "Latest Proposal ID: $LATEST_PROPOSAL"
+
+    echo "Voting on proposal ID $LATEST_PROPOSAL"
+
+    VOTE_OPTION=yes
+    local voteCommand="agd tx gov vote $LATEST_PROPOSAL $VOTE_OPTION --from=validator $SIGN_BROADCAST_OPTS -o json >tx.json"
+    execCmd "$voteCommand"
+
+    echo "Fetching details for proposal ID $LATEST_PROPOSAL"
+    local detailsCommand="agd query gov proposals --output json | jq -c "
+    detailsCommand+="'.proposals[] | select(.proposal_id == \"$LATEST_PROPOSAL\" or .id == \"$LATEST_PROPOSAL\") "
+    detailsCommand+="| [.proposal_id or .id, .voting_end_time, .status]'"
+    execCmd "$detailsCommand"
+}
+
+if ! command -v jq &>/dev/null; then
+    echo "jq is not installed. Installing jq..."
+    execCmd "apt-get install -y jq"
+fi
+
 echo "Running counterCoreEval.js using Agoric..."
 agoric run counterCoreEval.js
 
@@ -151,3 +183,4 @@ copyFilesToContainer
 
 openVaultsAndExecuteOffer
 installAllBundles
+acceptProposal
