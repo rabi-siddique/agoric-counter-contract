@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare dockerFlag=false
+declare createVault=false
 declare containerID=$(docker ps -q | head -n 1)
 
 declare JSON_FILE=counter-contract-plan.json
@@ -9,8 +9,8 @@ declare -a bundleFiles=()
 declare script=""
 declare permit=""
 
-if [[ "$1" == "-d" ]]; then
-    dockerFlag=true
+if [[ "$2" == "-v" ]]; then
+    createVault=true
 fi
 
 if [ -z "$containerID" ]; then
@@ -85,6 +85,14 @@ copyFilesToContainer() {
     done
 }
 
+setupAgops() {
+    local setupCommand="
+        echo 'Setting AGOPS';
+        export PATH=\\\"\$PATH:/usr/src/agoric-sdk/packages/agoric-cli/bin\\\";"
+
+    docker exec -it "$containerID" /bin/bash -c "$setupCommand"
+}
+
 echo "Running counterCoreEval.js using Agoric..."
 agoric run counterCoreEval.js
 
@@ -101,3 +109,6 @@ echo "permit: \"$permit\""
 
 echo "Copying files..."
 copyFilesToContainer
+
+echo "Setting up agops..."
+setupAgops
