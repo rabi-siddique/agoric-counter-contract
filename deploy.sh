@@ -1,7 +1,9 @@
 #!/bin/bash
 
 declare createVault=false
+declare dockerFlag=true
 declare containerID=$(docker ps -q | head -n 1)
+declare agops="/usr/src/agoric-sdk/packages/agoric-cli/bin/agops"
 
 declare JSON_FILE=counter-contract-plan.json
 declare -a bundleIDs=()
@@ -9,7 +11,7 @@ declare -a bundleFiles=()
 declare script=""
 declare permit=""
 
-if [[ "$2" == "-v" ]]; then
+if [[ "$1" == "-v" ]]; then
     createVault=true
 fi
 
@@ -85,12 +87,31 @@ copyFilesToContainer() {
     done
 }
 
-setupAgops() {
-    local setupCommand="
-        echo 'Setting AGOPS';
-        export PATH=\\\"\$PATH:/usr/src/agoric-sdk/packages/agoric-cli/bin\\\";"
+execCmd() {
+    local cmd="$1"
+    if $dockerFlag; then
+        docker exec -it "$containerID" bash -c "$cmd"
+    else
+        bash -c "$cmd"
+    fi
+}
 
-    docker exec -it "$containerID" /bin/bash -c "$setupCommand"
+openVaultsAndExecuteOffer() {
+    local wantMinted=450
+    local giveCollateral=90
+    local walletAddress="agoric1ee9hr0jyrxhy999y755mp862ljgycmwyp4pl7q"
+    local openVaultCommand="${agops} vaults open --wantMinted ${wantMinted} --giveCollateral ${giveCollateral} > /tmp/want-ist.json"
+    local executeOfferCommand="${agops} perf satisfaction --executeOffer /tmp/want-ist.json --from $walletAddress --keyring-backend=test"
+
+    if [[ $createVault == true && $walletAddress ]]; then
+        echo "Creating the vault..."
+        execCmd "$openVaultCommand"
+        sleep 5
+        echo "Executing the offer..."
+        execCmd "$executeOfferCommand"
+    else
+        echo "Vault not created"
+    fi
 }
 
 echo "Running counterCoreEval.js using Agoric..."
@@ -110,5 +131,4 @@ echo "permit: \"$permit\""
 echo "Copying files..."
 copyFilesToContainer
 
-echo "Setting up agops..."
-setupAgops
+openVaultsAndExecuteOffer
