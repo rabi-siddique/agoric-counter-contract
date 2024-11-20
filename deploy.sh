@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare JSON_FILE="$1"
+declare JSON_FILE=counter-contract-plan.json
 declare -a bundleIDs=()
 declare -a bundleFiles=()
 declare script=""
@@ -31,9 +31,38 @@ checkCounterFiles() {
     fi
 }
 
-# Generate bundles
+parsePlan() {
+    script=$(jq -r '.script' "$JSON_FILE")
+    permit=$(jq -r '.permit' "$JSON_FILE")
+
+    if [[ -z "$script" || -z "$permit" ]]; then
+        echo "Error: Failed to parse required fields from $JSON_FILE"
+        return 1
+    fi
+
+    echo "Reading Bundle IDs..."
+    while IFS= read -r line; do
+        if [[ -n "$line" ]]; then
+            bundleIDs+=("${line}.json")
+        fi
+    done < <(jq -r '.bundles[].bundleID' "$JSON_FILE")
+
+    echo "Reading Bundle Files..."
+    while IFS= read -r line; do
+        if [[ -n "$line" ]]; then
+            bundleFiles+=("${line}")
+        fi
+    done < <(jq -r '.bundles[].fileName' "$JSON_FILE")
+
+}
+
 echo "Running counterCoreEval.js using Agoric..."
 agoric run counterCoreEval.js
 
-# Check existence of files
 checkCounterFiles
+parsePlan
+
+echo "bundleIDs: ${bundleIDs[*]}"
+echo "bundleFiles: ${bundleFiles[*]}"
+echo "script: \"$script\""
+echo "permit: \"$permit\""
