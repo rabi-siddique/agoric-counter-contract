@@ -6,10 +6,14 @@ declare containerID=$(docker ps -q | head -n 1)
 declare agops="/usr/src/agoric-sdk/packages/agoric-cli/bin/agops"
 
 declare JSON_FILE=counter-contract-plan.json
+declare CHAINID=agoriclocal
+declare GAS_ADJUSTMENT=1.2
+declare SIGN_BROADCAST_OPTS="--keyring-backend=test --chain-id=$CHAINID --gas=auto --gas-adjustment=$GAS_ADJUSTMENT --yes"
 declare -a bundleIDs=()
 declare -a bundleFiles=()
 declare script=""
 declare permit=""
+declare walletName=gov1
 
 if [[ "$1" == "-v" ]]; then
     createVault=true
@@ -114,6 +118,20 @@ openVaultsAndExecuteOffer() {
     fi
 }
 
+installAllBundles() {
+    for b in "${bundleIDs[@]}"; do
+        local installCommand="cd /usr/src && "
+        installCommand+="echo 'Installing $b' && "
+        installCommand+="ls -sh '$b' && "
+        installCommand+="agd tx swingset install-bundle --compress '@$b' "
+        installCommand+="--from $walletName -bblock $SIGN_BROADCAST_OPTS"
+
+        echo "Executing installation for bundle $b"
+        execCmd "$installCommand"
+        sleep 5
+    done
+}
+
 echo "Running counterCoreEval.js using Agoric..."
 agoric run counterCoreEval.js
 
@@ -132,3 +150,4 @@ echo "Copying files..."
 copyFilesToContainer
 
 openVaultsAndExecuteOffer
+installAllBundles
