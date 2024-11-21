@@ -4,8 +4,14 @@
   "main": "counterContract.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "bash deploy.sh",
+    "start:ui": "cd ui && yarn dev"
   },
+  "private": true,
+  "useWorkspaces": true,
+  "workspaces": [
+    "ui"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
