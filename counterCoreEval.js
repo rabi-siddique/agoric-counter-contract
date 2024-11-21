@@ -7,7 +7,7 @@ export const defaultProposalBuilder = async ({ publishRef, install }, opts) => {
     getManifestCall: [
       getManifestForCounter.name,
       {
-        economicCommitteeRef: publishRef(install('./counterContract.js')),
+        counterRef: publishRef(install('./counterContract.js')),
       },
     ],
   });
@@ -16,7 +16,5 @@ export const defaultProposalBuilder = async ({ publishRef, install }, opts) => {
 export default async (homeP, endowments) => {
   const { writeCoreEval } = await makeHelpers(homeP, endowments);
 
-  await writeCoreEval(`counter-contract`, (utils) =>
-    defaultProposalBuilder(utils, {})
-  );
+  await writeCoreEval(`counter-contract`, defaultProposalBuilder);
 };
