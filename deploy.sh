@@ -143,19 +143,20 @@ acceptProposal() {
 
     local queryCommand="cd /usr/src && agd query gov proposals --output json | jq -c '[.proposals[] | "
     queryCommand+="if .proposal_id == null then .id else .proposal_id end | tonumber] | max'"
-    local LATEST_PROPOSAL=$(execCmd "$queryCommand")
-    echo "Latest Proposal ID: $LATEST_PROPOSAL"
 
+    local LATEST_PROPOSAL=$(execCmd "$queryCommand" | sed 's/\x1b\[[0-9;]*m//g' | tr -d '[:space:]')
     echo "Voting on proposal ID $LATEST_PROPOSAL"
+    # Filter out unnecessary ANSI escape sequences
+    echo "$LATEST_PROPOSAL" | od -A n -t x1
 
-    VOTE_OPTION=yes
-    local voteCommand="agd tx gov vote $LATEST_PROPOSAL $VOTE_OPTION --from=validator $SIGN_BROADCAST_OPTS -o json >tx.json"
+    local voteCommand="agd tx gov vote $LATEST_PROPOSAL yes --from=validator $SIGN_BROADCAST_OPTS"
     execCmd "$voteCommand"
 
     echo "Fetching details for proposal ID $LATEST_PROPOSAL"
     local detailsCommand="agd query gov proposals --output json | jq -c "
     detailsCommand+="'.proposals[] | select(.proposal_id == \"$LATEST_PROPOSAL\" or .id == \"$LATEST_PROPOSAL\") "
     detailsCommand+="| [.proposal_id or .id, .voting_end_time, .status]'"
+
     execCmd "$detailsCommand"
 }
 
