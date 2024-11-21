@@ -1,15 +1,13 @@
 import { makeHelpers } from '@agoric/deploy-script-support';
 import { getManifestForCounter } from './counterProposal.js';
 
-export const counterProposalBuilder = async ({ publishRef, install }) => {
+export const defaultProposalBuilder = async ({ publishRef, install }, opts) => {
   return harden({
     sourceSpec: './counterProposal.js',
     getManifestCall: [
       getManifestForCounter.name,
       {
-        counterRef: publishRef(
-          install('./counterContract.js', './bundles/bundle-counter.js')
-        ),
+        counterRef: publishRef(install('./counterContract.js')),
       },
     ],
   });
@@ -17,5 +15,6 @@ export const counterProposalBuilder = async ({ publishRef, install }) => {
 
 export default async (homeP, endowments) => {
   const { writeCoreEval } = await makeHelpers(homeP, endowments);
-  await writeCoreEval('bundles/start-counter', counterProposalBuilder);
+
+  await writeCoreEval(`counter-contract`, defaultProposalBuilder);
 };

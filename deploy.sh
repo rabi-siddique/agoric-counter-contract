@@ -165,8 +165,8 @@ if ! command -v jq &>/dev/null; then
     execCmd "apt-get install -y jq"
 fi
 
-echo "Running counterCoreEval.js using Agoric..."
-agoric run counterCoreEval.js
+echo "Running counterBuilder.js using Agoric..."
+agoric run counterBuilder.js
 
 echo "Checking files..."
 checkCounterFiles
