@@ -5,7 +5,7 @@ let counter = 0;
 
 export const start = async (zcf, privateArgs) => {
   const { node } = privateArgs;
-  
+
   console.log('Starting Counter Contract');
   console.log('Counter:', counter);
 
@@ -28,6 +28,7 @@ export const start = async (zcf, privateArgs) => {
 
   const publicFacet = Far('Public Facet', {
     makeInvitation,
+    getCounter: () => counter,
   });
 
   return harden({ publicFacet });
