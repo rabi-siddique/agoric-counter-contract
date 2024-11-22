@@ -1,5 +1,5 @@
 {
-  "name": "agoric-smart-contracts-guide",
+  "name": "agoric-counter-contract",
   "version": "1.0.0",
   "main": "counterContract.js",
   "type": "module",
